@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #444;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            display: inline-block;
+            width: 100px;
+            color: #555;
+        }
+        .input-group input {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: right;
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: #dc3545;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+        #summary p {
+            margin: 5px 0;
+        }
+        #total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <h1>Money Tracker</h1>
+    <div class="container">
+        <div class="section">
+            <h2>Coins</h2>
+            <div class="input-group">
+                <label>1¢ (Penny):</label>
+                <input type="number" id="penny" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>5¢ (Nickel):</label>
+                <input type="number" id="nickel" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>10¢ (Dime):</label>
+                <input type="number" id="dime" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>25¢ (Quarter):</label>
+                <input type="number" id="quarter" min="0" value="0">
+            </div>
+        </div>
+        <div class="section">
+            <h2>Dollars</h2>
+            <div class="input-group">
+                <label>1$:</label>
+                <input type="number" id="oneDollar" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>5$:</label>
+                <input type="number" id="fiveDollar" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>10$:</label>
+                <input type="number" id="tenDollar" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>20$:</label>
+                <input type="number" id="twentyDollar" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>50$:</label>
+                <input type="number" id="fiftyDollar" min="0" value="0">
+            </div>
+            <div class="input-group">
+                <label>100$:</label>
+                <input type="number" id="hundredDollar" min="0" value="0">
+            </div>
+        </div>
+    </div>
+    <div class="buttons">
+        <button id="clearBtn">Clear All</button>
+    </div>
+    <div id="summary">
+        <h2>Summary</h2>
+        <div id="summaryContent"></div>
+        <p id="total">Total: $0.00</p>
+    </div>
+
+    <script>
+        // Load saved data from localStorage when the page loads
+        window.onload = function() {
+            loadSavedData();
+            updateSummary();
+            setupInputListeners();
+        };
+
+        // Set up event listeners for all input fields
+        function setupInputListeners() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    saveData();
+                    updateSummary();
+                });
+            });
+        }
+
+        // Clear button event listener
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                clearData();
+                updateSummary();
+            }
+        });
+
+        function saveData() {
+            const moneyData = {
+                penny: parseInt(document.getElementById('penny').value) || 0,
+                nickel: parseInt(document.getElementById('nickel').value) || 0,
+                dime: parseInt(document.getElementById('dime').value) || 0,
+                quarter: parseInt(document.getElementById('quarter').value) || 0,
+                oneDollar: parseInt(document.getElementById('oneDollar').value) || 0,
+                fiveDollar: parseInt(document.getElementById('fiveDollar').value) || 0,
+                tenDollar: parseInt(document.getElementById('tenDollar').value) || 0,
+                twentyDollar: parseInt(document.getElementById('twentyDollar').value) || 0,
+                fiftyDollar: parseInt(document.getElementById('fiftyDollar').value) || 0,
+                hundredDollar: parseInt(document.getElementById('hundredDollar').value) || 0
+            };
+            localStorage.setItem('moneyData', JSON.stringify(moneyData));
+        }
+
+        function loadSavedData() {
+            const savedData = JSON.parse(localStorage.getItem('moneyData'));
+            if (savedData) {
+                document.getElementById('penny').value = savedData.penny || 0;
+                document.getElementById('nickel').value = savedData.nickel || 0;
+                document.getElementById('dime').value = savedData.dime || 0;
+                document.getElementById('quarter').value = savedData.quarter || 0;
+                document.getElementById('oneDollar').value = savedData.oneDollar || 0;
+                document.getElementById('fiveDollar').value = savedData.fiveDollar || 0;
+                document.getElementById('tenDollar').value = savedData.tenDollar || 0;
+                document.getElementById('twentyDollar').value = savedData.twentyDollar || 0;
+                document.getElementById('fiftyDollar').value = savedData.fiftyDollar || 0;
+                document.getElementById('hundredDollar').value = savedData.hundredDollar || 0;
+            }
+        }
+
+        function clearData() {
+            localStorage.removeItem('moneyData');
+            document.getElementById('penny').value = 0;
+            document.getElementById('nickel').value = 0;
+            document.getElementById('dime').value = 0;
+            document.getElementById('quarter').value = 0;
+            document.getElementById('oneDollar').value = 0;
+            document.getElementById('fiveDollar').value = 0;
+            document.getElementById('tenDollar').value = 0;
+            document.getElementById('twentyDollar').value = 0;
+            document.getElementById('fiftyDollar').value = 0;
+            document.getElementById('hundredDollar').value = 0;
+            alert('All data cleared!');
+        }
+
+        function updateSummary() {
+            const moneyData = JSON.parse(localStorage.getItem('moneyData')) || {};
+            let totalCents = 0;
+            let summaryHTML = '';
+
+            // Coins
+            if (moneyData.penny > 0) {
+                summaryHTML += `<p>${moneyData.penny} x 1¢ = $${(moneyData.penny * 0.01).toFixed(2)}</p>`;
+                totalCents += moneyData.penny;
+            }
+            if (moneyData.nickel > 0) {
+                summaryHTML += `<p>${moneyData.nickel} x 5¢ = $${(moneyData.nickel * 0.05).toFixed(2)}</p>`;
+                totalCents += moneyData.nickel * 5;
+            }
+            if (moneyData.dime > 0) {
+                summaryHTML += `<p>${moneyData.dime} x 10¢ = $${(moneyData.dime * 0.10).toFixed(2)}</p>`;
+                totalCents += moneyData.dime * 10;
+            }
+            if (moneyData.quarter > 0) {
+                summaryHTML += `<p>${moneyData.quarter} x 25¢ = $${(moneyData.quarter * 0.25).toFixed(2)}</p>`;
+                totalCents += moneyData.quarter * 25;
+            }
+
+            // Dollars
+            if (moneyData.oneDollar > 0) {
+                summaryHTML += `<p>${moneyData.oneDollar} x 1$ = $${(moneyData.oneDollar * 1).toFixed(2)}</p>`;
+                totalCents += moneyData.oneDollar * 100;
+            }
+            if (moneyData.fiveDollar > 0) {
+                summaryHTML += `<p>${moneyData.fiveDollar} x 5$ = $${(moneyData.fiveDollar * 5).toFixed(2)}</p>`;
+                totalCents += moneyData.fiveDollar * 500;
+            }
+            if (moneyData.tenDollar > 0) {
+                summaryHTML += `<p>${moneyData.tenDollar} x 10$ = $${(moneyData.tenDollar * 10).toFixed(2)}</p>`;
+                totalCents += moneyData.tenDollar * 1000;
+            }
+            if (moneyData.twentyDollar > 0) {
+                summaryHTML += `<p>${moneyData.twentyDollar} x 20$ = $${(moneyData.twentyDollar * 20).toFixed(2)}</p>`;
+                totalCents += moneyData.twentyDollar * 2000;
+            }
+            if (moneyData.fiftyDollar > 0) {
+                summaryHTML += `<p>${moneyData.fiftyDollar} x 50$ = $${(moneyData.fiftyDollar * 50).toFixed(2)}</p>`;
+                totalCents += moneyData.fiftyDollar * 5000;
+            }
+            if (moneyData.hundredDollar > 0) {
+                summaryHTML += `<p>${moneyData.hundredDollar} x 100$ = $${(moneyData.hundredDollar * 100).toFixed(2)}</p>`;
+                totalCents += moneyData.hundredDollar * 10000;
+            }
+
+            // Update summary content
+            document.getElementById('summaryContent').innerHTML = summaryHTML || '<p>No data entered.</p>';
+
+            // Update total
+            const totalDollars = (totalCents / 100).toFixed(2);
+            document.getElementById('total').textContent = `Total: $${totalDollars}`;
+        }
+    </script>
+</body>
+</html>
