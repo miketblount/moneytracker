@@ -163,10 +163,10 @@
 
     <script>
         // GitHub API configuration
-        const GITHUB_TOKEN = 'YOUR_PERSONAL_ACCESS_TOKEN'; // Replace with your PAT (secure this!)
         const OWNER = 'YOUR_GITHUB_USERNAME'; // Replace with your GitHub username
-        const REPO = 'money-tracker'; // Replace with your repository name
-        const PATH = 'data.json'; // Path to the data file in the repository
+        const REPO = 'money-tracker';
+        const PATH = 'data.json';
+        const API_URL = '/.netlify/functions/github-api'; // Relative path to Netlify Function
 
         // Load data from GitHub when the page loads
         window.onload = function() {
@@ -211,15 +211,15 @@
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
 
-        // Fetch data from GitHub
+        // Fetch data from GitHub via Netlify Function
         async function loadDataFromGitHub() {
             try {
-                const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28'
-                    }
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        method: 'GET',
+                        path: `/repos/${OWNER}/${REPO}/contents/${PATH}`
+                    })
                 });
                 if (!response.ok) {
                     throw new Error(`Failed to fetch data: ${response.statusText}`);
@@ -243,7 +243,7 @@
             }
         }
 
-        // Save data to GitHub
+        // Save data to GitHub via Netlify Function
         async function saveDataToGitHub() {
             try {
                 const moneyData = {
@@ -259,13 +259,13 @@
                     hundredDollar: parseInt(document.getElementById('hundredDollar').value) || 0
                 };
 
-                // Get current file SHA (required for updates)
-                const getResponse = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28'
-                    }
+                // Get current file SHA
+                const getResponse = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        method: 'GET',
+                        path: `/repos/${OWNER}/${REPO}/contents/${PATH}`
+                    })
                 });
                 if (!getResponse.ok) {
                     throw new Error(`Failed to fetch file SHA: ${getResponse.statusText}`);
@@ -274,17 +274,16 @@
                 const sha = fileData.sha;
 
                 // Update file
-                const updateResponse = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github+json',
-                        'X-GitHub-Api-Version': '2022-11-28'
-                    },
+                const updateResponse = await fetch(API_URL, {
+                    method: 'POST',
                     body: JSON.stringify({
-                        message: 'Update money data',
-                        content: btoa(JSON.stringify(moneyData)),
-                        sha: sha
+                        method: 'PUT',
+                        path: `/repos/${OWNER}/${REPO}/contents/${PATH}`,
+                        body: {
+                            message: 'Update money data',
+                            content: btoa(JSON.stringify(moneyData)),
+                            sha: sha
+                        }
                     })
                 });
                 if (!updateResponse.ok) {
