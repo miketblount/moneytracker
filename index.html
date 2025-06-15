@@ -150,7 +150,7 @@
         <div id="summaryContent"></div>
         <div id="balanceInfo">
             <p id="total">Total: $0.00</p>
-            <p id="toDeposit">To Deposit: $0.00</p>
+            <p id="toDeposit">To Deposit (after $200.00): $0.00</p>
         </div>
     </div>
 
@@ -284,10 +284,10 @@
             const totalDollars = (totalCents / 100).toFixed(2);
             document.getElementById('total').textContent = `Total: $${totalDollars}`;
             
-            // Calculate amount to deposit (subtract $2.00 or 200 cents)
-            const toDepositCents = totalCents - 200;
+            // Calculate amount to deposit (subtract $200.00 or 20000 cents)
+            const toDepositCents = totalCents - 20000;
             const toDepositDollars = (toDepositCents < 0 ? 0 : toDepositCents / 100).toFixed(2);
-            document.getElementById('toDeposit').textContent = `To Deposit (after $2.00): $${toDepositDollars}`;
+            document.getElementById('toDeposit').textContent = `To Deposit (after $200.00): $${toDepositDollars}`;
         }
     </script>
 </body>
