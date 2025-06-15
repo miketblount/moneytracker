@@ -71,11 +71,21 @@
             padding: 15px;
             background: #e9ecef;
             border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
         }
-        #summary p {
+        #summary h2 {
+            width: 100%;
+        }
+        #summaryContent, #balanceInfo {
+            flex: 1;
+            min-width: 250px;
+        }
+        #summary p, #balanceInfo p {
             margin: 5px 0;
         }
-        #total {
+        #total, #toDeposit {
             font-weight: bold;
             font-size: 18px;
             color: #2c3e50;
@@ -138,7 +148,10 @@
     <div id="summary">
         <h2>Summary</h2>
         <div id="summaryContent"></div>
-        <p id="total">Total: $0.00</p>
+        <div id="balanceInfo">
+            <p id="total">Total: $0.00</p>
+            <p id="toDeposit">To Deposit: $0.00</p>
+        </div>
     </div>
 
     <script>
@@ -267,9 +280,14 @@
             // Update summary content
             document.getElementById('summaryContent').innerHTML = summaryHTML || '<p>No data entered.</p>';
 
-            // Update total
+            // Update total and to-deposit amounts
             const totalDollars = (totalCents / 100).toFixed(2);
             document.getElementById('total').textContent = `Total: $${totalDollars}`;
+            
+            // Calculate amount to deposit (subtract $2.00 or 200 cents)
+            const toDepositCents = totalCents - 200;
+            const toDepositDollars = (toDepositCents < 0 ? 0 : toDepositCents / 100).toFixed(2);
+            document.getElementById('toDeposit').textContent = `To Deposit (after $2.00): $${toDepositDollars}`;
         }
     </script>
 </body>
